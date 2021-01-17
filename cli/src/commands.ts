@@ -31,20 +31,22 @@ export const bytesToSign = async (operation: OperationData, nodeUrl: url, nonce:
   Utils.print(``)
 
   Utils.print('Encode bytes with: ')
-  Utils.print(`tezos-client hash data 'Pair "${chainId}" (Pair ${actualNonce} ${lambda})' of type 'pair chain_id (pair nat (lambda unit (list operation)))'`)
+  Utils.print(`tezos-client -E ${nodeUrl} hash data 'Pair "${chainId}" (Pair ${actualNonce} ${lambda})' of type 'pair chain_id (pair nat (lambda unit (list operation)))'`)
   Utils.print('')
 
-  const hex = TezosMessageUtils.writePackedData(michelson, "pair (chain_id) (pair (nat) (lambda unit (list operation)))", TezosParameterFormat.Michelson)
-  Utils.print(`[Experimental] I tried to encode the bytes myself. Here is what I came up with: `)
-  Utils.print(hex)
-  Utils.print('')
 
   Utils.print(`Verify these bytes with: `)
-  Utils.print(`tezos-client unpack michelson data  0x<BYTES>`)
+  Utils.print(`tezos-client -E ${nodeUrl} unpack michelson data  0x<BYTES>`)
   Utils.print('')
 
   Utils.print(`Sign these bytes with: `)
-  Utils.print(`tezos-client sign bytes  0x<BYTES> for <KEY>`)
+  Utils.print(`tezos-client -E ${nodeUrl} sign bytes  0x<BYTES> for <KEY>`)
+  Utils.print('')
+
+  // TODO(keefertaylor): Decide what to do with this vestige.
+  const hex = TezosMessageUtils.writePackedData(michelson, "pair (chain_id) (pair (nat) (lambda unit (list operation)))", TezosParameterFormat.Michelson)
+  Utils.print(`[Experimental] I tried to encode the bytes myself. Here is what I came up with: `)
+  Utils.print(hex)
   Utils.print('')
 }
 
@@ -72,20 +74,20 @@ export const keyRotationBytesToSign = async (threshold: number, keyList: Array<p
   Utils.print(``)
 
   Utils.print('Encode bytes with: ')
-  Utils.print(`tezos-client hash data '${michelson}' of type 'pair chain_id (pair nat (pair nat (list key)))'`)
+  Utils.print(`tezos-client -E ${nodeUrl} hash data '${michelson}' of type 'pair chain_id (pair nat (pair nat (list key)))'`)
+  Utils.print('')
+
+  Utils.print(`Verify these bytes with: `)
+  Utils.print(`tezos-client -E ${nodeUrl} unpack michelson data  0x<BYTES>`)
+  Utils.print('')
+
+  Utils.print(`Sign these bytes with: `)
+  Utils.print(`tezos-client -E ${nodeUrl} sign bytes  0x<BYTES> for <KEY>`)
   Utils.print('')
 
   const hex = TezosMessageUtils.writePackedData(michelson, "pair chain_id (pair nat (pair nat (list key)))", TezosParameterFormat.Michelson)
   Utils.print(`[Experimental] I tried to encode the bytes myself. Here is what I came up with: `)
   Utils.print(hex)
-  Utils.print('')
-
-  Utils.print(`Verify these bytes with: `)
-  Utils.print(`tezos-client unpack michelson data  0x<BYTES>`)
-  Utils.print('')
-
-  Utils.print(`Sign these bytes with: `)
-  Utils.print(`tezos-client sign bytes  0x<BYTES> for <KEY>`)
   Utils.print('')
 }
 
@@ -108,20 +110,20 @@ export const cancelBytesToSign = async (operationId: number, nodeUrl: url, nonce
   Utils.print(``)
 
   Utils.print('Encode bytes with: ')
-  Utils.print(`tezos-client hash data '${michelson}' of type 'pair chain_id (pair nat nat)'`)
+  Utils.print(`tezos-client -E ${nodeUrl} hash data '${michelson}' of type 'pair chain_id (pair nat nat)'`)
+  Utils.print('')
+
+  Utils.print(`Verify these bytes with: `)
+  Utils.print(`tezos-client -E ${nodeUrl} unpack michelson data  0x<BYTES>`)
+  Utils.print('')
+
+  Utils.print(`Sign these bytes with: `)
+  Utils.print(`tezos-client -E ${nodeUrl} sign bytes  0x<BYTES> for <KEY>`)
   Utils.print('')
 
   const hex = TezosMessageUtils.writePackedData(michelson, "pair chain_id (pair nat nat)", TezosParameterFormat.Michelson)
   Utils.print(`[Experimental] I tried to encode the bytes myself. Here is what I came up with: `)
   Utils.print(hex)
-  Utils.print('')
-
-  Utils.print(`Verify these bytes with: `)
-  Utils.print(`tezos-client unpack michelson data  0x<BYTES>`)
-  Utils.print('')
-
-  Utils.print(`Sign these bytes with: `)
-  Utils.print(`tezos-client sign bytes  0x<BYTES> for <KEY>`)
   Utils.print('')
 }
 
@@ -223,7 +225,7 @@ export const cancel = async (
 
   Utils.print(`I will try to invoke the operation but it will likely fail.`)
   Utils.print(`Use tezos-client to submit the operation manually.`)
-  Utils.print(`tezos-client transfer 0 from ${keyStore.publicKeyHash} to ${multiSigContractAddress} --arg '${param}' --entrypoint 'cancel'`)
+  Utils.print(`tezos-client -E ${nodeUrl} transfer 0 from ${keyStore.publicKeyHash} to ${multiSigContractAddress} --arg '${param}' --entrypoint 'cancel'`)
   Utils.print('')
 
   Utils.print(`Attempting to inject automatically:`)
@@ -312,7 +314,7 @@ export const rotateKey = async (
 
   Utils.print(`I will try to invoke the operation but it will likely fail.`)
   Utils.print(`Use tezos-client to submit the operation manually.`)
-  Utils.print(`tezos-client transfer 0 from ${keyStore.publicKeyHash} to ${multiSigContractAddress} --arg '${param}' --entrypoint 'rotateKeys'`)
+  Utils.print(`tezos-client -E ${nodeUrl} transfer 0 from ${keyStore.publicKeyHash} to ${multiSigContractAddress} --arg '${param}' --entrypoint 'rotateKeys'`)
   Utils.print('')
 
   Utils.print(`Attempting to inject automatically:`)
@@ -397,7 +399,7 @@ export const submit = async (
 
   Utils.print(`I will try to invoke the operation but it will likely fail.`)
   Utils.print(`Use tezos-client to submit the operation manually.`)
-  Utils.print(`tezos-client transfer 0 from ${keyStore.publicKeyHash} to ${multiSigContractAddress} --arg '${param}' --entrypoint 'addExecutionRequest'`)
+  Utils.print(`tezos-client -E ${nodeUrl} transfer 0 from ${keyStore.publicKeyHash} to ${multiSigContractAddress} --arg '${param}' --entrypoint 'addExecutionRequest'`)
   Utils.print('')
 
   Utils.print(`Attempting to inject automatically:`)
