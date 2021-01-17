@@ -103,9 +103,9 @@ class MultiSigTimelock(sp.Contract):
       sp.for operator_public_key in self.data.operator_public_keys:
         # Check if the given public key is in the signatures list.
         keyHash = sp.hash_key(operator_public_key)
-        sp.verify(signatures.contains(keyHash), "BAD_OP")
-        sp.verify(sp.check_signature(operator_public_key, signatures[keyHash], sp.pack(executionRequest)), "BAD_SIG")
-        validSignaturesCounter.value += 1
+        sp.if signatures.contains(keyHash):
+          sp.verify(sp.check_signature(operator_public_key, signatures[keyHash], sp.pack(executionRequest)), "BAD_SIGNATURE")
+          validSignaturesCounter.value += 1
         
       # Verify that enough signatures were provided.
       sp.verify(validSignaturesCounter.value >= self.data.signers_threshold, "TOO_FEW_SIGS")
@@ -457,8 +457,8 @@ def test():
 
   #  WHEN the request is sent to the multisignature contract.
   signatures = {
-   bob.public_key:     bobSignature, 
-   charlie.public_key: charlieSignature,
+   bob.public_key_hash:     bobSignature, 
+   charlie.public_key_hash: charlieSignature,
   }
   signedExecutionRequest = (signatures, executionRequest)
   now = sp.timestamp(123)
@@ -514,9 +514,9 @@ def test():
 
     #  WHEN the request is sent to the multisignature contract.
     signatures = {
-      charlie.public_key: charlieSignature,
-      dan.public_key: danSignature,
-      eve.public_key: eveSignature,
+      charlie.public_key_hash: charlieSignature,
+      dan.public_key_hash: danSignature,
+      eve.public_key_hash: eveSignature,
     }
     signedExecutionRequest = (signatures, executionRequest)
     now = sp.timestamp(123)
@@ -579,9 +579,9 @@ def test():
 
   #  AND the request is addded to the timelock
   signatures = {
-   bob.public_key:     bobSignature, 
-   charlie.public_key: charlieSignature,
-   dan.public_key:     danSignature,
+   bob.public_key_hash:     bobSignature, 
+   charlie.public_key_hash: charlieSignature,
+   dan.public_key_hash:     danSignature,
   }
   signedExecutionRequest = (signatures, executionRequest)
   now = sp.timestamp(123)
@@ -649,9 +649,9 @@ def test():
 
   #  AND the request is addded to the timelock
   signatures = {
-   bob.public_key:     bobSignature, 
-   charlie.public_key: charlieSignature,
-   dan.public_key:     danSignature,
+   bob.public_key_hash:     bobSignature, 
+   charlie.public_key_hash: charlieSignature,
+   dan.public_key_hash:     danSignature,
   }
   signedExecutionRequest = (signatures, executionRequest)
   now = sp.timestamp(123)
@@ -715,9 +715,9 @@ def test():
 
   #  AND the request is addded to the timelock
   signatures = {
-   bob.public_key:     bobSignature, 
-   charlie.public_key: charlieSignature,
-   dan.public_key:     danSignature,
+   bob.public_key_hash:     bobSignature, 
+   charlie.public_key_hash: charlieSignature,
+   dan.public_key_hash:     danSignature,
   }
   signedExecutionRequest = (signatures, executionRequest)
   now = sp.timestamp(123)
@@ -793,9 +793,9 @@ def test():
   danSignature = sp.make_signature(dan.secret_key, executionRequestBytes)
 
   signatures = {
-   bob.public_key:     bobSignature, 
-   charlie.public_key: charlieSignature,
-   dan.public_key:     danSignature,
+   bob.public_key_hash:     bobSignature, 
+   charlie.public_key_hash: charlieSignature,
+   dan.public_key_hash:     danSignature,
   }
   signedExecutionRequest1 = (signatures, executionRequest)
   now = sp.timestamp(123)
@@ -814,9 +814,9 @@ def test():
   danSignature = sp.make_signature(dan.secret_key, executionRequestBytes)
 
   signatures = {
-   bob.public_key:     bobSignature, 
-   charlie.public_key: charlieSignature,
-   dan.public_key:     danSignature,
+   bob.public_key_hash:     bobSignature, 
+   charlie.public_key_hash: charlieSignature,
+   dan.public_key_hash:     danSignature,
   }
   signedExecutionRequest2 = (signatures, executionRequest)
   now = sp.timestamp(123)
