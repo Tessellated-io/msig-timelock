@@ -1,5 +1,5 @@
 {
-  "name": "@tessellated-geometry/tezos-msig-cli",
+  "name": "@tessellatedgeometry/tezos-msig-cli",
   "version": "0.0.3",
   "description": "CLI Client for Tezos timelock multisig.",
   "main": "build/src/index.js",
@@ -7,13 +7,13 @@
     "build/**/*"
   ],
   "bin": {
-    "tezos-msig": "build/src/cli.js"
+    "tezos-msig": "build/src/index.js"
   },
   "scripts": {
     "build": "npm run clean && tsc -d",
     "clean": "rm -rf ./build",
     "lint": "eslint . --ext .ts --fix",
-    "prepublishOnly": "npm run build && chmod +x ./build/src/cli.js",
+    "prepublishOnly": "npm run build && chmod +x ./build/src/index.js",
     "test": "echo \"no tests :(\""
   },
   "repository": {
