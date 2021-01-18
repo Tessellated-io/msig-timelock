@@ -97,7 +97,7 @@ class MultiSigTimelock(sp.Contract):
   # Param:
   # - signedExecutionRequest (SIGNED_EXECUTION_REQUEST_TYPE) The request to submit.
   @sp.entry_point
-  def addExecutionRequest(self, signedExecutionRequest):
+  def submit(self, signedExecutionRequest):
     # Destructure input params
     sp.set_type(signedExecutionRequest, SIGNED_EXECUTION_REQUEST_TYPE)
     signatures, executionRequest = sp.match_pair(signedExecutionRequest)
@@ -257,12 +257,12 @@ class StoreValueContract(sp.Contract):
 ################################################################
 
 ################################################################
-# addExecutionRequest
+# submit
 ################################################################
 
 # TODO(keefertaylor): These tests must test that the nonce has been updated.
 
-@sp.add_test(name = "addExecutionRequest - succeeds with all signatures")
+@sp.add_test(name = "submit - succeeds with all signatures")
 def test():
   scenario = sp.test_scenario()
 
@@ -316,7 +316,7 @@ def test():
   }
   signedExecutionRequest = (signatures, executionRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest).run(
+  scenario += multiSigContract.submit(signedExecutionRequest).run(
     chain_id = chainId,
     now = now
   )
@@ -328,7 +328,7 @@ def test():
   timelockItem = multiSigContract.data.timelock[nonce]
   scenario.verify(sp.fst(timelockItem) == now)
 
-@sp.add_test(name = "addExecutionRequest - succeeds with threshold signatures")
+@sp.add_test(name = "submit - succeeds with threshold signatures")
 def test():
   scenario = sp.test_scenario()
 
@@ -378,7 +378,7 @@ def test():
   }
   signedExecutionRequest = (signatures, executionRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest).run(
+  scenario += multiSigContract.submit(signedExecutionRequest).run(
     chain_id = chainId,
     now = now
   )
@@ -390,7 +390,7 @@ def test():
   timelockItem = multiSigContract.data.timelock[nonce]
   scenario.verify(sp.fst(timelockItem) == now)
 
-@sp.add_test(name = "addExecutionRequest - fails with bad nonce")
+@sp.add_test(name = "submit - fails with bad nonce")
 def test():
   scenario = sp.test_scenario()
 
@@ -442,13 +442,13 @@ def test():
   now = sp.timestamp(123)
 
   # THEN the call fails.
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest).run(
+  scenario += multiSigContract.submit(signedExecutionRequest).run(
     chain_id = chainId,
     now = now,
     valid = False
   )
 
-@sp.add_test(name = "addExecutionRequest - fails with bad chain id")
+@sp.add_test(name = "submit - fails with bad chain id")
 def test():
   scenario = sp.test_scenario()
 
@@ -499,14 +499,14 @@ def test():
   }
   signedExecutionRequest = (signatures, executionRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest).run(
+  scenario += multiSigContract.submit(signedExecutionRequest).run(
     chain_id = sp.chain_id_cst("0x0011223344"),
     now = now,
     valid = False
   )
 
 
-@sp.add_test(name = "addExecutionRequest - fails with less than threshold signatures")
+@sp.add_test(name = "submit - fails with less than threshold signatures")
 def test():
   scenario = sp.test_scenario()
 
@@ -556,13 +556,13 @@ def test():
   now = sp.timestamp(123)
 
   # THEN it fails.
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest).run(
+  scenario += multiSigContract.submit(signedExecutionRequest).run(
     chain_id = chainId,
     now = now,
     valid = False
   )
 
-@sp.add_test(name = "addExecutionRequest - does not count invalid signatures")
+@sp.add_test(name = "submit - does not count invalid signatures")
 def test():
   scenario = sp.test_scenario()
 
@@ -614,7 +614,7 @@ def test():
   now = sp.timestamp(123)
 
   # THEN it fails.
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest).run(
+  scenario += multiSigContract.submit(signedExecutionRequest).run(
     chain_id = chainId,
     now = now,
     valid = False
@@ -1049,7 +1049,7 @@ def test():
   }
   signedExecutionRequest = (signatures, executionRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest).run(
+  scenario += multiSigContract.submit(signedExecutionRequest).run(
     chain_id = chainId,
     now = now
   )
@@ -1133,7 +1133,7 @@ def test():
   }
   signedExecutionRequest = (signatures, executionRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest).run(
+  scenario += multiSigContract.submit(signedExecutionRequest).run(
     chain_id = chainId,
     now = now
   )
@@ -1213,7 +1213,7 @@ def test():
   }
   signedExecutionRequest = (signatures, executionRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest).run(
+  scenario += multiSigContract.submit(signedExecutionRequest).run(
     chain_id = chainId,
     now = now
   )
@@ -1289,7 +1289,7 @@ def test():
   }
   signedExecutionRequest = (signatures, executionRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest).run(
+  scenario += multiSigContract.submit(signedExecutionRequest).run(
     chain_id = chainId,
     now = now
   )
@@ -1363,7 +1363,7 @@ def test():
   }
   signedExecutionRequest = (signatures, executionRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest).run(
+  scenario += multiSigContract.submit(signedExecutionRequest).run(
     chain_id = chainId,
     now = now
   )
@@ -1437,7 +1437,7 @@ def test():
   }
   signedExecutionRequest = (signatures, executionRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest).run(
+  scenario += multiSigContract.submit(signedExecutionRequest).run(
     chain_id = chainId,
     now = now
   )
@@ -1524,7 +1524,7 @@ def test():
   }
   signedExecutionRequest = (signatures, executionRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest).run(
+  scenario += multiSigContract.submit(signedExecutionRequest).run(
     chain_id = chainId,
     now = now
   )
@@ -1594,7 +1594,7 @@ def test():
   }
   signedExecutionRequest = (signatures, executionRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest).run(
+  scenario += multiSigContract.submit(signedExecutionRequest).run(
     chain_id = chainId,
     now = now
   )
@@ -1660,7 +1660,7 @@ def test():
   }
   signedExecutionRequest = (signatures, executionRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest).run(
+  scenario += multiSigContract.submit(signedExecutionRequest).run(
     chain_id = chainId,
     now = now
   )
@@ -1738,7 +1738,7 @@ def test():
   }
   signedExecutionRequest1 = (signatures, executionRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest1).run(
+  scenario += multiSigContract.submit(signedExecutionRequest1).run(
     chain_id = chainId,
     now = now
   )
@@ -1759,7 +1759,7 @@ def test():
   }
   signedExecutionRequest2 = (signatures, executionRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.addExecutionRequest(signedExecutionRequest2).run(
+  scenario += multiSigContract.submit(signedExecutionRequest2).run(
     chain_id = chainId,
     now = now
   )  
