@@ -314,7 +314,7 @@ export const rotateKey = async (
 
   Utils.print(`I will try to invoke the operation but it will likely fail.`)
   Utils.print(`Use tezos-client to submit the operation manually.`)
-  Utils.print(`tezos-client -E ${nodeUrl} transfer 0 from ${keyStore.publicKeyHash} to ${multiSigContractAddress} --arg '${param}' --entrypoint 'rotateKeys'`)
+  Utils.print(`tezos-client -E ${nodeUrl} transfer 0 from ${keyStore.publicKeyHash} to ${multiSigContractAddress} --arg '${param}' --entrypoint 'rotate'`)
   Utils.print('')
 
   Utils.print(`Attempting to inject automatically:`)
@@ -326,7 +326,7 @@ export const rotateKey = async (
     0,
     Constants.storageLimit,
     Constants.gasLimit,
-    'rotateKeys',
+    'rotate',
     `${param} `,
     TezosParameterFormat.Michelson,
   )

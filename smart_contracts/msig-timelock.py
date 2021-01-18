@@ -134,7 +134,7 @@ class MultiSigTimelock(sp.Contract):
   # Param:
   # - signedKeyRotationRequest (SIGNED_KEY_ROTATION_REQUEST_TYPE) The request to submit.
   @sp.entry_point
-  def rotateKeys(self, signedKeyRotationRequest):
+  def rotate(self, signedKeyRotationRequest):
     # Destructure input params
     sp.set_type(signedKeyRotationRequest, SIGNED_KEY_ROTATION_REQUEST_TYPE)
     signatures, keyRotationRequest = sp.match_pair(signedKeyRotationRequest)
@@ -621,13 +621,13 @@ def test():
   )
 
 ################################################################
-# rotateKeys
+# rotate
 ################################################################
 
 # TODO(keefertaylor): No need for value store contract.
 # TODO(keefertaylor): Ensure nonce checks.
 
-@sp.add_test(name = "rotateKeys - succeeds with all signatures")
+@sp.add_test(name = "rotate - succeeds with all signatures")
 def test():
   scenario = sp.test_scenario()
 
@@ -683,7 +683,7 @@ def test():
   }
   signedRotationRequest = (signatures, rotationRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.rotateKeys(signedRotationRequest).run(
+  scenario += multiSigContract.rotate(signedRotationRequest).run(
     chain_id = chainId,
     now = now
   )
@@ -695,7 +695,7 @@ def test():
   scenario.verify(multiSigContract.data.threshold == newThreshold)
   scenario.verify_equal(multiSigContract.data.signers, newKeyList)
 
-@sp.add_test(name = "rotateKeys - succeeds with threshold signatures")
+@sp.add_test(name = "rotate - succeeds with threshold signatures")
 def test():
   scenario = sp.test_scenario()
 
@@ -747,7 +747,7 @@ def test():
   }
   signedRotationRequest = (signatures, rotationRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.rotateKeys(signedRotationRequest).run(
+  scenario += multiSigContract.rotate(signedRotationRequest).run(
     chain_id = chainId,
     now = now
   )
@@ -759,7 +759,7 @@ def test():
   scenario.verify(multiSigContract.data.threshold == newThreshold)
   scenario.verify_equal(multiSigContract.data.signers, newKeyList)
 
-@sp.add_test(name = "rotateKeys - fails with bad nonce")
+@sp.add_test(name = "rotate - fails with bad nonce")
 def test():
   scenario = sp.test_scenario()
 
@@ -813,13 +813,13 @@ def test():
   now = sp.timestamp(123)
 
   # THEN the call fails.
-  scenario += multiSigContract.rotateKeys(signedRotationRequest).run(
+  scenario += multiSigContract.rotate(signedRotationRequest).run(
     chain_id = chainId,
     now = now,
     valid = False
   )
 
-@sp.add_test(name = "rotateKeys - fails with bad chain id")
+@sp.add_test(name = "rotate - fails with bad chain id")
 def test():
   scenario = sp.test_scenario()
 
@@ -872,7 +872,7 @@ def test():
   }
   signedRotationRequest = (signatures, rotationRequest)
   now = sp.timestamp(123)
-  scenario += multiSigContract.rotateKeys(signedRotationRequest).run(
+  scenario += multiSigContract.rotate(signedRotationRequest).run(
     chain_id = sp.chain_id_cst("0x0011223344"),
     now = now,
     valid = False
@@ -930,13 +930,13 @@ def test():
   now = sp.timestamp(123)
 
   # THEN it fails.
-  scenario += multiSigContract.rotateKeys(signedRotationRequest).run(
+  scenario += multiSigContract.rotate(signedRotationRequest).run(
     chain_id = chainId,
     now = now,
     valid = False
   )
 
-@sp.add_test(name = "rotateKeys - does not count invalid signatures")
+@sp.add_test(name = "rotate - does not count invalid signatures")
 def test():
   scenario = sp.test_scenario()
 
@@ -990,7 +990,7 @@ def test():
   now = sp.timestamp(123)
 
   # THEN it fails.
-  scenario += multiSigContract.rotateKeys(signedRotationRequest).run(
+  scenario += multiSigContract.rotate(signedRotationRequest).run(
     chain_id = chainId,
     now = now,
     valid = False
