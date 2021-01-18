@@ -69,7 +69,6 @@ SIGNED_KEY_ROTATION_REQUEST_TYPE = sp.TPair(SIGNATURES_TYPE, KEY_ROTATION_REQUES
 ################################################################
 
 class MultiSigTimelock(sp.Contract):
-  # TODO(keefertaylor): Consistent indentation and casing.
   # Params:
   # - threshold (nat) The number of signatures required.
   # - timelockSeconds (nat) The number of seconds a timelock lasts for.
