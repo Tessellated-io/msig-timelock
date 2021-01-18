@@ -51,7 +51,6 @@ export const getChainId = async (nodeUrl: url): Promise<chainId> => {
  */
 export const compileCommand = async (command: OperationData): Promise<string> => {
   // A simple program that executes the lambda.
-  // TODO(keefertyalor): Does this need to be hardcoded?
   const program = `
 import smartpy as sp
 
