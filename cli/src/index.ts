@@ -21,7 +21,7 @@ import {
 import * as commander from 'commander'
 import { OperationData } from './types'
 
-const version = '0.0.3'
+const version = '0.0.4'
 
 const program = new commander.Command()
 program.version(version)

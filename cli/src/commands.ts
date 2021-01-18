@@ -38,8 +38,9 @@ export const bytesToSubmit = async (
   attemptAutomatic: boolean,
 ): Promise<void> => {
   const chainId = await getChainId(nodeUrl)
-  const actualNonce =
-    nonce ?? (await getNonce(multiSigContractAddress, nodeUrl)) + 1
+  const actualNonce = nonce
+    ? nonce
+    : (await getNonce(multiSigContractAddress, nodeUrl)) + 1
 
   const lambda = compileOperation(operation)
   const michelson = `Pair "${chainId}" (Pair ${actualNonce} ${lambda})`
@@ -96,7 +97,7 @@ export const keyRotationbytesToSubmit = async (
 ): Promise<void> => {
   const chainId = await getChainId(nodeUrl)
   const actualNonce =
-    nonce ?? (await getNonce(multiSigContractAddress, nodeUrl)) + 1
+    nonce ? nonce : (await getNonce(multiSigContractAddress, nodeUrl)) + 1
 
   const keyListMichelson = keyList.reduce((previous, current) => {
     return `${previous} "${current}";`
@@ -154,7 +155,7 @@ export const cancelbytesToSubmit = async (
 ): Promise<void> => {
   const chainId = await getChainId(nodeUrl)
   const actualNonce =
-    nonce ?? (await getNonce(multiSigContractAddress, nodeUrl)) + 1
+    nonce ? nonce : (await getNonce(multiSigContractAddress, nodeUrl)) + 1
 
   const michelson = `Pair "${chainId}" (Pair ${actualNonce} ${operationId})`
 
