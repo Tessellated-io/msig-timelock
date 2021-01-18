@@ -70,6 +70,10 @@ SIGNED_KEY_ROTATION_REQUEST_TYPE = sp.TPair(SIGNATURES_TYPE, KEY_ROTATION_REQUES
 
 class MultiSigTimelock(sp.Contract):
   # TODO(keefertaylor): Consistent indentation and casing.
+  # Params:
+  # - threshold (nat) The number of signatures required.
+  # - timelockSeconds (nat) The number of seconds a timelock lasts for.
+  # - signers (list(key)) The keys which can sign.
   def __init__(self, 
     signers_threshold = sp.nat(1),
     timelock_seconds = sp.nat(60 * 60), # 1 hour
@@ -79,8 +83,6 @@ class MultiSigTimelock(sp.Contract):
       nonce=sp.nat(0), 
       signers_threshold=signers_threshold,
       operator_public_keys=operator_public_keys,
-
-      # Seconds to timelock for.
       timelock_seconds = timelock_seconds,
 
       # Map of <nonce>:<execution request>
