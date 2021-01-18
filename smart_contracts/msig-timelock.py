@@ -602,8 +602,6 @@ def test():
 # rotate
 ################################################################
 
-# TODO(keefertaylor): Ensure nonce checks.
-
 @sp.add_test(name = "rotate - succeeds with all signatures")
 def test():
   scenario = sp.test_scenario()
