@@ -69,163 +69,163 @@ SIGNED_KEY_ROTATION_REQUEST_TYPE = sp.TPair(SIGNATURES_TYPE, KEY_ROTATION_REQUES
 ################################################################
 
 class MultiSigTimelock(sp.Contract):
-   # TODO(keefertaylor): Consistent indentation and casing.
-    def __init__(self, 
-      signers_threshold = sp.nat(1),
-      timelock_seconds = sp.nat(60 * 60), # 1 hour
-      operator_public_keys = [sp.key("edpkuX2icxnt5krjTJAmNv8uNJNiQtFmDy9Hzj6SF1f6e3NjT4LXKB")]
-    ):
-        self.init(
-            nonce=sp.nat(0), 
-            signers_threshold=signers_threshold,
-            operator_public_keys=operator_public_keys,
+  # TODO(keefertaylor): Consistent indentation and casing.
+  def __init__(self, 
+    signers_threshold = sp.nat(1),
+    timelock_seconds = sp.nat(60 * 60), # 1 hour
+    operator_public_keys = [sp.key("edpkuX2icxnt5krjTJAmNv8uNJNiQtFmDy9Hzj6SF1f6e3NjT4LXKB")]
+  ):
+    self.init(
+      nonce=sp.nat(0), 
+      signers_threshold=signers_threshold,
+      operator_public_keys=operator_public_keys,
 
-            # Seconds to timelock for.
-            timelock_seconds = timelock_seconds,
+      # Seconds to timelock for.
+      timelock_seconds = timelock_seconds,
 
-            # Map of <nonce>:<execution request>
-            timelock = sp.big_map(
-                l = {},
-                tkey = sp.TNat,
-                tvalue = TIMELOCK_TYPE
-            )
-        )
+      # Map of <nonce>:<execution request>
+      timelock = sp.big_map(
+        l = {},
+        tkey = sp.TNat,
+        tvalue = TIMELOCK_TYPE
+      )
+    )
 
-    # Add a request to the timelock, assuming it has been properly signed.
-    # Param:
-    # - signedExecutionRequest (SIGNED_EXECUTION_REQUEST_TYPE) The request to submit.
-    @sp.entry_point
-    def addExecutionRequest(self, signedExecutionRequest):
-      # Destructure input params
-      sp.set_type(signedExecutionRequest, SIGNED_EXECUTION_REQUEST_TYPE)
-      signatures, executionRequest = sp.match_pair(signedExecutionRequest)
+  # Add a request to the timelock, assuming it has been properly signed.
+  # Param:
+  # - signedExecutionRequest (SIGNED_EXECUTION_REQUEST_TYPE) The request to submit.
+  @sp.entry_point
+  def addExecutionRequest(self, signedExecutionRequest):
+    # Destructure input params
+    sp.set_type(signedExecutionRequest, SIGNED_EXECUTION_REQUEST_TYPE)
+    signatures, executionRequest = sp.match_pair(signedExecutionRequest)
 
-      # Destructure execution request
-      chainId, innerPair = sp.match_pair(executionRequest)
-      nonce, lambdaToExecute = sp.match_pair(innerPair)
+    # Destructure execution request
+    chainId, innerPair = sp.match_pair(executionRequest)
+    nonce, lambdaToExecute = sp.match_pair(innerPair)
 
-      # Verify ChainID
-      sp.verify_equal(chainId, sp.chain_id, "BAD_CHAIN_ID")
+    # Verify ChainID
+    sp.verify_equal(chainId, sp.chain_id, "BAD_CHAIN_ID")
+    
+    # Verify Nonce
+    sp.verify(nonce == self.data.nonce + 1, "BAD_NONCE")
+
+    # Count valid signatures
+    validSignaturesCounter = sp.local('valid_signatures_counter', sp.nat(0))
+    sp.for operator_public_key in self.data.operator_public_keys:
+      # Check if the given public key is in the signatures list.
+      keyHash = sp.hash_key(operator_public_key)
+      sp.if signatures.contains(keyHash):
+        sp.verify(sp.check_signature(operator_public_key, signatures[keyHash], sp.pack(executionRequest)), "BAD_SIGNATURE")
+        validSignaturesCounter.value += 1
       
-      # Verify Nonce
-      sp.verify(nonce == self.data.nonce + 1, "BAD_NONCE")
+    # Verify that enough signatures were provided.
+    sp.verify(validSignaturesCounter.value >= self.data.signers_threshold, "TOO_FEW_SIGS")
 
-      # Count valid signatures
-      validSignaturesCounter = sp.local('valid_signatures_counter', sp.nat(0))
-      sp.for operator_public_key in self.data.operator_public_keys:
-        # Check if the given public key is in the signatures list.
-        keyHash = sp.hash_key(operator_public_key)
-        sp.if signatures.contains(keyHash):
-          sp.verify(sp.check_signature(operator_public_key, signatures[keyHash], sp.pack(executionRequest)), "BAD_SIGNATURE")
-          validSignaturesCounter.value += 1
-        
-      # Verify that enough signatures were provided.
-      sp.verify(validSignaturesCounter.value >= self.data.signers_threshold, "TOO_FEW_SIGS")
+    # Increment nonce.
+    self.data.nonce += 1
 
-      # Increment nonce.
-      self.data.nonce += 1
+    # Add to timelock.
+    self.data.timelock[self.data.nonce] = (sp.now, lambdaToExecute)
 
-      # Add to timelock.
-      self.data.timelock[self.data.nonce] = (sp.now, lambdaToExecute)
+  # Rotate keys, assuming the request has been properly signed.
+  # Param:
+  # - signedKeyRotationRequest (SIGNED_KEY_ROTATION_REQUEST_TYPE) The request to submit.
+  @sp.entry_point
+  def rotateKeys(self, signedKeyRotationRequest):
+    # Destructure input params
+    sp.set_type(signedKeyRotationRequest, SIGNED_KEY_ROTATION_REQUEST_TYPE)
+    signatures, keyRotationRequest = sp.match_pair(signedKeyRotationRequest)
 
-    # Rotate keys, assuming the request has been properly signed.
-    # Param:
-    # - signedKeyRotationRequest (SIGNED_KEY_ROTATION_REQUEST_TYPE) The request to submit.
-    @sp.entry_point
-    def rotateKeys(self, signedKeyRotationRequest):
-      # Destructure input params
-      sp.set_type(signedKeyRotationRequest, SIGNED_KEY_ROTATION_REQUEST_TYPE)
-      signatures, keyRotationRequest = sp.match_pair(signedKeyRotationRequest)
+    # Destructure key request
+    chainId, innerPair = sp.match_pair(keyRotationRequest)
+    nonce, keyData = sp.match_pair(innerPair)
 
-      # Destructure key request
-      chainId, innerPair = sp.match_pair(keyRotationRequest)
-      nonce, keyData = sp.match_pair(innerPair)
+    # Verify ChainID
+    sp.verify_equal(chainId, sp.chain_id, "BAD_CHAIN_ID")
+    
+    # Verify Nonce
+    sp.verify(nonce == self.data.nonce + 1, "BAD_NONCE")
 
-      # Verify ChainID
-      sp.verify_equal(chainId, sp.chain_id, "BAD_CHAIN_ID")
+    # Count valid signatures
+    validSignaturesCounter = sp.local('valid_signatures_counter', sp.nat(0))
+    sp.for operator_public_key in self.data.operator_public_keys:
+      # Check if the given public key is in the signatures list.
+      keyHash = sp.hash_key(operator_public_key)
+      sp.if signatures.contains(keyHash):
+        sp.verify(sp.check_signature(operator_public_key, signatures[keyHash], sp.pack(keyRotationRequest)), "BAD_SIGNATURE")
+        validSignaturesCounter.value += 1
       
-      # Verify Nonce
-      sp.verify(nonce == self.data.nonce + 1, "BAD_NONCE")
+    # Verify that enough signatures were provided.
+    sp.verify(validSignaturesCounter.value >= self.data.signers_threshold, "TOO_FEW_SIGS")
 
-      # Count valid signatures
-      validSignaturesCounter = sp.local('valid_signatures_counter', sp.nat(0))
-      sp.for operator_public_key in self.data.operator_public_keys:
-        # Check if the given public key is in the signatures list.
-        keyHash = sp.hash_key(operator_public_key)
-        sp.if signatures.contains(keyHash):
-          sp.verify(sp.check_signature(operator_public_key, signatures[keyHash], sp.pack(keyRotationRequest)), "BAD_SIGNATURE")
-          validSignaturesCounter.value += 1
-        
-      # Verify that enough signatures were provided.
-      sp.verify(validSignaturesCounter.value >= self.data.signers_threshold, "TOO_FEW_SIGS")
+    # Increment nonce.
+    self.data.nonce += 1
 
-      # Increment nonce.
-      self.data.nonce += 1
+    # Update key data
+    threshold, keyList = sp.match_pair(keyData)
+    self.data.signers_threshold  = threshold
+    self.data.operator_public_keys = keyList
 
-      # Update key data
-      threshold, keyList = sp.match_pair(keyData)
-      self.data.signers_threshold  = threshold
-      self.data.operator_public_keys = keyList
+  # Cancel a request in the timelock.
+  # Param:
+  # - signedCancellationRequest (SIGNED_CANCELLATION_REQUEST_TYPE) The request to submit.
+  @sp.entry_point
+  def cancel(self, signedCancellationRequest):
+    # Destructure input params
+    sp.set_type(signedCancellationRequest, SIGNED_CANCELLATION_REQUEST_TYPE)
+    signatures, cancellationRequest = sp.match_pair(signedCancellationRequest)
 
-    # Cancel a request in the timelock.
-    # Param:
-    # - signedCancellationRequest (SIGNED_CANCELLATION_REQUEST_TYPE) The request to submit.
-    @sp.entry_point
-    def cancel(self, signedCancellationRequest):
-      # Destructure input params
-      sp.set_type(signedCancellationRequest, SIGNED_CANCELLATION_REQUEST_TYPE)
-      signatures, cancellationRequest = sp.match_pair(signedCancellationRequest)
+    # Destructure cancellation request
+    chainId, innerPair = sp.match_pair(cancellationRequest)
+    nonce, cancellationTarget = sp.match_pair(innerPair)
 
-      # Destructure cancellation request
-      chainId, innerPair = sp.match_pair(cancellationRequest)
-      nonce, cancellationTarget = sp.match_pair(innerPair)
+    # Verify ChainID
+    sp.verify_equal(chainId, sp.chain_id, "BAD_CHAIN_ID")
+    
+    # Verify Nonce
+    sp.verify(nonce == self.data.nonce + 1, "BAD_NONCE")
 
-      # Verify ChainID
-      sp.verify_equal(chainId, sp.chain_id, "BAD_CHAIN_ID")
+    # Count valid signatures
+    validSignaturesCounter = sp.local('valid_signatures_counter', sp.nat(0))
+    sp.for operator_public_key in self.data.operator_public_keys:
+      # Check if the given public key is in the signatures list.
+      keyHash = sp.hash_key(operator_public_key)
+      sp.if signatures.contains(keyHash):
+        sp.verify(sp.check_signature(operator_public_key, signatures[keyHash], sp.pack(cancellationRequest)), "BAD_SIGNATURE")
+        validSignaturesCounter.value += 1
       
-      # Verify Nonce
-      sp.verify(nonce == self.data.nonce + 1, "BAD_NONCE")
+    # Verify that enough signatures were provided.
+    sp.verify(validSignaturesCounter.value >= self.data.signers_threshold, "TOO_FEW_SIGS")
 
-      # Count valid signatures
-      validSignaturesCounter = sp.local('valid_signatures_counter', sp.nat(0))
-      sp.for operator_public_key in self.data.operator_public_keys:
-        # Check if the given public key is in the signatures list.
-        keyHash = sp.hash_key(operator_public_key)
-        sp.if signatures.contains(keyHash):
-          sp.verify(sp.check_signature(operator_public_key, signatures[keyHash], sp.pack(cancellationRequest)), "BAD_SIGNATURE")
-          validSignaturesCounter.value += 1
-        
-      # Verify that enough signatures were provided.
-      sp.verify(validSignaturesCounter.value >= self.data.signers_threshold, "TOO_FEW_SIGS")
+    # Increment nonce.
+    self.data.nonce += 1
 
-      # Increment nonce.
-      self.data.nonce += 1
+    # Update key data
+    del self.data.timelock[cancellationTarget]
 
-      # Update key data
-      del self.data.timelock[cancellationTarget]
+  # Execute a request in the timelock.
+  # Pamrams:
+  # - nonce (nat) The identifier of the nonce to execute.
+  @sp.entry_point
+  def execute(self, nonce):
+      # Get timelock. Will fail if there's no request for nonce.
+      timelockItem = self.data.timelock[nonce]
+      timelockToStart, lambdaToExecute = sp.match_pair(timelockItem)
 
-    # Execute a request in the timelock.
-    # Pamrams:
-    # - nonce (nat) The identifier of the nonce to execute.
-    @sp.entry_point
-    def execute(self, nonce):
-        # Get timelock. Will fail if there's no request for nonce.
-        timelockItem = self.data.timelock[nonce]
-        timelockToStart, lambdaToExecute = sp.match_pair(timelockItem)
+      # Verify time has been exceeded.
+      execution_time = timelockToStart.add_seconds(sp.to_int(self.data.timelock_seconds))
+      sp.verify(execution_time < sp.now, "TOO_EARLY")
 
-        # Verify time has been exceeded.
-        execution_time = timelockToStart.add_seconds(sp.to_int(self.data.timelock_seconds))
-        sp.verify(execution_time < sp.now, "TOO_EARLY")
+      # Remove item from timelock.
+      del self.data.timelock[nonce]
 
-        # Remove item from timelock.
-        del self.data.timelock[nonce]
+      # Execute request.
+      operations = lambdaToExecute(sp.unit)
+      sp.set_type(operations, sp.TList(sp.TOperation))
+      sp.add_operations(operations)
 
-        # Execute request.
-        operations = lambdaToExecute(sp.unit)
-        sp.set_type(operations, sp.TList(sp.TOperation))
-        sp.add_operations(operations)
-
-    # TODO(keefertaylor): Write a cancel function.
+  # TODO(keefertaylor): Write a cancel function.
 
 ################################################################
 ################################################################
