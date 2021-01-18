@@ -17,7 +17,7 @@ import OperationFeeEstimator from './operation-fee-estimator'
 import Constants from './constants'
 
 /** Constants */
-const CONTRACT_SOURCE = `${__dirname}/../../smart_contracts/msig-timelock.tz`
+const CONTRACT_SOURCE = `${__dirname}/msig-timelock.tz`
 
 /** Command functions */
 

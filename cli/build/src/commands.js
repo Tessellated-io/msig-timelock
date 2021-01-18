@@ -9,10 +9,12 @@ const helpers_1 = require("./helpers");
 const conseiljs_1 = require("conseiljs");
 const operation_fee_estimator_1 = __importDefault(require("./operation-fee-estimator"));
 const constants_1 = __importDefault(require("./constants"));
-const CONTRACT_SOURCE = `${__dirname}/../../smart_contracts/msig-timelock.tz`;
+const CONTRACT_SOURCE = `${__dirname}/msig-timelock.tz`;
 const bytesToSubmit = async (operation, nodeUrl, nonce, multiSigContractAddress, attemptAutomatic) => {
     const chainId = await helpers_1.getChainId(nodeUrl);
-    const actualNonce = nonce ?? (await helpers_1.getNonce(multiSigContractAddress, nodeUrl)) + 1;
+    const actualNonce = nonce
+        ? nonce
+        : (await helpers_1.getNonce(multiSigContractAddress, nodeUrl)) + 1;
     const lambda = helpers_1.compileOperation(operation);
     const michelson = `Pair "${chainId}" (Pair ${actualNonce} ${lambda})`;
     utils_1.default.print('Data to encode');
@@ -37,7 +39,7 @@ const bytesToSubmit = async (operation, nodeUrl, nonce, multiSigContractAddress,
 exports.bytesToSubmit = bytesToSubmit;
 const keyRotationbytesToSubmit = async (threshold, keyList, nodeUrl, nonce, multiSigContractAddress, attemptAutomatic) => {
     const chainId = await helpers_1.getChainId(nodeUrl);
-    const actualNonce = nonce ?? (await helpers_1.getNonce(multiSigContractAddress, nodeUrl)) + 1;
+    const actualNonce = nonce ? nonce : (await helpers_1.getNonce(multiSigContractAddress, nodeUrl)) + 1;
     const keyListMichelson = keyList.reduce((previous, current) => {
         return `${previous} "${current}";`;
     }, '');
@@ -64,7 +66,7 @@ const keyRotationbytesToSubmit = async (threshold, keyList, nodeUrl, nonce, mult
 exports.keyRotationbytesToSubmit = keyRotationbytesToSubmit;
 const cancelbytesToSubmit = async (operationId, nodeUrl, nonce, multiSigContractAddress, attemptAutomatic) => {
     const chainId = await helpers_1.getChainId(nodeUrl);
-    const actualNonce = nonce ?? (await helpers_1.getNonce(multiSigContractAddress, nodeUrl)) + 1;
+    const actualNonce = nonce ? nonce : (await helpers_1.getNonce(multiSigContractAddress, nodeUrl)) + 1;
     const michelson = `Pair "${chainId}" (Pair ${actualNonce} ${operationId})`;
     utils_1.default.print('Data to encode');
     utils_1.default.print(`${michelson}`);

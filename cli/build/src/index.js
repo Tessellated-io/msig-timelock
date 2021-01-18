@@ -29,7 +29,7 @@ const loglevel_1 = require("loglevel");
 const conseiljs_1 = require("conseiljs");
 const commands_1 = require("./commands");
 const commander = __importStar(require("commander"));
-const version = '0.0.3';
+const version = '0.0.6';
 const program = new commander.Command();
 program.version(version);
 program.option('--debug', 'Print verbose output.');
@@ -45,7 +45,7 @@ program
     const conseilLogLevel = program.debug ? 'debug' : 'error';
     initConseil(conseilLogLevel);
     const publicKeys = commandObject.publicKeys.split(',').sort();
-    await commands_1.deployMultisig(commandObject.timelockSeconds, commandObject.threshold, publicKeys, commandObject.nodeUrl, commandObject.deployerPrivateKey);
+    await commands_1.deployMultisig(commandObject.timelockSeconds, commandObject.threshold, publicKeys, commandObject.nodeUrl, commandObject.privateKey);
 });
 program
     .command('bytes-submit')
