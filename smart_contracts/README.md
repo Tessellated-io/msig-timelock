@@ -1,4 +1,4 @@
-# MultiSig Timelock Contract
+# Multisig Timelock Contract
 
 This smart contract creates a multisig contract with a timelock. 
 

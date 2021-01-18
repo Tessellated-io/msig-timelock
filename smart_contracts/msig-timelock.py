@@ -226,8 +226,6 @@ class MultiSigTimelock(sp.Contract):
       sp.set_type(operations, sp.TList(sp.TOperation))
       sp.add_operations(operations)
 
-  # TODO(keefertaylor): Write a cancel function.
-
 ################################################################
 ################################################################
 # Test Helpers
