@@ -627,10 +627,6 @@ def test():
   # AND a chain id.
   chainId = sp.chain_id_cst("0x9caecab9")
 
-  # AND a store value contract with the multisig as the admin.
-  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
-  scenario += storeContract
-
   # AND key data
   newThreshold = sp.nat(2)
 
