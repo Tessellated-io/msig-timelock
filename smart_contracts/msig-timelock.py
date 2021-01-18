@@ -954,8 +954,6 @@ def test():
 # cancel
 ################################################################
 
-# TODO(keefertaylor): nonces
-
 @sp.add_test(name = "cancel - succeeds with all signatures")
 def test():
   scenario = sp.test_scenario()
@@ -1453,7 +1451,6 @@ def test():
   scenario += storeContract
 
   # AND a lambda is to update the value
-  # TODO(keefertaylor): enable
   newValue = sp.nat(1)
   def updateLambda(unitParam):
     sp.set_type(unitParam, sp.TUnit)
