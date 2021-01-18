@@ -238,8 +238,6 @@ Store = sp.import_script_from_url("file:test-helpers/store.py")
 # submit
 ################################################################
 
-# TODO(keefertaylor): These tests must test that the nonce has been updated.
-
 @sp.add_test(name = "submit - succeeds with all signatures")
 def test():
   scenario = sp.test_scenario()
@@ -302,6 +300,9 @@ def test():
   # THEN there is one request in the timelock
   scenario.verify(multiSigContract.data.timelock.contains(nonce))
 
+  # THEN the nonce has been updated
+  scenario.verify(multiSigContract.data.nonce == nonce)
+
   # AND the request has the execution time.
   timelockItem = multiSigContract.data.timelock[nonce]
   scenario.verify(sp.fst(timelockItem) == now)
@@ -363,6 +364,9 @@ def test():
 
   # THEN there is one request in the timelock
   scenario.verify(multiSigContract.data.timelock.contains(nonce))
+
+  # THEN the nonce has been updated
+  scenario.verify(multiSigContract.data.nonce == nonce)
 
   # AND the request has the execution time.
   timelockItem = multiSigContract.data.timelock[nonce]
@@ -482,7 +486,6 @@ def test():
     now = now,
     valid = False
   )
-
 
 @sp.add_test(name = "submit - fails with less than threshold signatures")
 def test():
@@ -1490,8 +1493,7 @@ def test():
 
   # AND the value was updated.
   scenario.verify(storeContract.data.storedValue == newValue)
-
-
+  
 @sp.add_test(name = "execute - fails before timelock")
 def test():
   scenario = sp.test_scenario()
