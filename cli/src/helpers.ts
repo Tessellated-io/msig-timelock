@@ -59,7 +59,7 @@ def command(self):
   transfer_operation = sp.transfer_operation(
     ${command.argSmartPy},
     sp.mutez(${command.amountMutez}), 
-    sp.contract(sp.TInt, sp.address("${command.address}"), "${command.entrypoint}"
+    sp.contract(None, sp.address("${command.address}"), "${command.entrypoint}"
   ).open_some())
   
   operation_list = [ transfer_operation ]

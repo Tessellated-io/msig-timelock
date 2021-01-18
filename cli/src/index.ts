@@ -160,6 +160,7 @@ program
   })
 
 // Submit bytes
+// TODO(Keefertaylor): make nonce optional.
 program
   .command('submit')
   .description('Submit an operation')
