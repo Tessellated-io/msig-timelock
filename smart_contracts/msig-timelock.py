@@ -228,30 +228,11 @@ class MultiSigTimelock(sp.Contract):
 
 ################################################################
 ################################################################
-# Test Helpers
-################################################################
-################################################################
-
-# A contract which stores a value that may only be set by the admin.
-# TODO(keefertaylor): Refactor?
-class StoreValueContract(sp.Contract):
-  def __init__(self, value, admin):
-    self.init(storedValue = value, admin=admin)
-
-  @sp.entry_point
-  def default(self, params):
-    pass
-
-  @sp.entry_point
-  def replace(self, newValue):
-    sp.verify(sp.sender == self.data.admin, "NOT_ADMIN")       
-    self.data.storedValue = newValue
-
-################################################################
-################################################################
 # Tests
 ################################################################
 ################################################################
+
+Store = sp.import_script_from_url("file:test-helpers/store.py")
 
 ################################################################
 # submit
@@ -282,7 +263,7 @@ def test():
   chainId = sp.chain_id_cst("0x9caecab9")
 
   # AND a store value contract with the multisig as the admin.
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   # AND a lambda is to update the value
@@ -348,7 +329,7 @@ def test():
   chainId = sp.chain_id_cst("0x9caecab9")
 
   # AND a store value contract with the multisig as the admin.
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   # AND a lambda is to update the value
@@ -410,7 +391,7 @@ def test():
   chainId = sp.chain_id_cst("0x9caecab9")
 
   # AND a store value contract with the multisig as the admin.
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   # AND a lambda is to update the value
@@ -468,7 +449,7 @@ def test():
   chainId = sp.chain_id_cst("0x9caecab9")
 
   # AND a store value contract with the multisig as the admin.
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   # AND a lambda is to update the value
@@ -526,7 +507,7 @@ def test():
   chainId = sp.chain_id_cst("0x9caecab9")
 
   # AND a store value contract with the multisig as the admin.
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   # AND a lambda is to update the value
@@ -582,7 +563,7 @@ def test():
   chainId = sp.chain_id_cst("0x9caecab9")
 
   # AND a store value contract with the multisig as the admin.
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   # AND a lambda is to update the value
@@ -647,7 +628,7 @@ def test():
   chainId = sp.chain_id_cst("0x9caecab9")
 
   # AND a store value contract with the multisig as the admin.
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   # AND key data
@@ -715,7 +696,7 @@ def test():
   chainId = sp.chain_id_cst("0x9caecab9")
 
   # AND a store value contract with the multisig as the admin.
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   # AND key data
@@ -779,7 +760,7 @@ def test():
   chainId = sp.chain_id_cst("0x9caecab9")
 
   # AND a store value contract with the multisig as the admin.
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   # AND key data
@@ -839,7 +820,7 @@ def test():
   chainId = sp.chain_id_cst("0x9caecab9")
 
   # AND a store value contract with the multisig as the admin.
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   # AND key data
@@ -898,7 +879,7 @@ def test():
   chainId = sp.chain_id_cst("0x9caecab9")
 
   # AND a store value contract with the multisig as the admin.
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   # AND key data
@@ -956,7 +937,7 @@ def test():
   chainId = sp.chain_id_cst("0x9caecab9")
 
   # AND a store value contract with the multisig as the admin.
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   # AND key data
@@ -1021,7 +1002,7 @@ def test():
   )
   scenario += multiSigContract
 
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   chainId = sp.chain_id_cst("0x9caecab9")
@@ -1105,7 +1086,7 @@ def test():
   )
   scenario += multiSigContract
 
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   chainId = sp.chain_id_cst("0x9caecab9")
@@ -1185,7 +1166,7 @@ def test():
   )
   scenario += multiSigContract
 
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   chainId = sp.chain_id_cst("0x9caecab9")
@@ -1261,7 +1242,7 @@ def test():
   )
   scenario += multiSigContract
 
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   chainId = sp.chain_id_cst("0x9caecab9")
@@ -1335,7 +1316,7 @@ def test():
   )
   scenario += multiSigContract
 
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   chainId = sp.chain_id_cst("0x9caecab9")
@@ -1409,7 +1390,7 @@ def test():
   )
   scenario += multiSigContract
 
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   chainId = sp.chain_id_cst("0x9caecab9")
@@ -1493,7 +1474,7 @@ def test():
   chainId = sp.chain_id_cst("0x9caecab9")
 
   # AND a store value contract with the multisig as the admin.
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   # AND a lambda is to update the value
@@ -1564,7 +1545,7 @@ def test():
   chainId = sp.chain_id_cst("0x9caecab9")
 
   # AND a store value contract with the multisig as the admin.
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   # AND a lambda is to update the value
@@ -1627,7 +1608,7 @@ def test():
   chainId = sp.chain_id_cst("0x9caecab9")
 
   # AND a store value contract with the multisig as the admin.
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   # AND a lambda is to update the value twice.
@@ -1699,7 +1680,7 @@ def test():
   chainId = sp.chain_id_cst("0x9caecab9")
 
   # AND a store value contract with the multisig as the admin.
-  storeContract = StoreValueContract(value = 0, admin = multiSigContract.address)
+  storeContract = Store.StoreValueContract(value = 0, admin = multiSigContract.address)
   scenario += storeContract
 
   # AND two lambdas are provided.
