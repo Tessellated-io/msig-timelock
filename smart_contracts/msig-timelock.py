@@ -76,14 +76,14 @@ class MultiSigTimelock(sp.Contract):
   # - signers (list(key)) The keys which can sign.
   def __init__(self, 
     threshold = sp.nat(1),
-    timelock_seconds = sp.nat(60 * 60), # 1 hour
-    operator_public_keys = [sp.key("edpkuX2icxnt5krjTJAmNv8uNJNiQtFmDy9Hzj6SF1f6e3NjT4LXKB")]
+    timelockSeconds = sp.nat(60 * 60), # 1 hour
+    signers = [sp.key("edpkuX2icxnt5krjTJAmNv8uNJNiQtFmDy9Hzj6SF1f6e3NjT4LXKB")]
   ):
     self.init(
       nonce=sp.nat(0), 
       threshold=threshold,
-      operator_public_keys=operator_public_keys,
-      timelock_seconds = timelock_seconds,
+      signers=signers,
+      timelockSeconds = timelockSeconds,
 
       # Map of <nonce>:<execution request>
       timelock = sp.big_map(
@@ -114,11 +114,11 @@ class MultiSigTimelock(sp.Contract):
 
     # Count valid signatures
     validSignaturesCounter = sp.local('valid_signatures_counter', sp.nat(0))
-    sp.for operator_public_key in self.data.operator_public_keys:
+    sp.for signer in self.data.signers:
       # Check if the given public key is in the signatures list.
-      keyHash = sp.hash_key(operator_public_key)
+      keyHash = sp.hash_key(signer)
       sp.if signatures.contains(keyHash):
-        sp.verify(sp.check_signature(operator_public_key, signatures[keyHash], sp.pack(executionRequest)), "BAD_SIGNATURE")
+        sp.verify(sp.check_signature(signer, signatures[keyHash], sp.pack(executionRequest)), "BAD_SIGNATURE")
         validSignaturesCounter.value += 1
       
     # Verify that enough signatures were provided.
@@ -151,11 +151,11 @@ class MultiSigTimelock(sp.Contract):
 
     # Count valid signatures
     validSignaturesCounter = sp.local('valid_signatures_counter', sp.nat(0))
-    sp.for operator_public_key in self.data.operator_public_keys:
+    sp.for signer in self.data.signers:
       # Check if the given public key is in the signatures list.
-      keyHash = sp.hash_key(operator_public_key)
+      keyHash = sp.hash_key(signer)
       sp.if signatures.contains(keyHash):
-        sp.verify(sp.check_signature(operator_public_key, signatures[keyHash], sp.pack(keyRotationRequest)), "BAD_SIGNATURE")
+        sp.verify(sp.check_signature(signer, signatures[keyHash], sp.pack(keyRotationRequest)), "BAD_SIGNATURE")
         validSignaturesCounter.value += 1
       
     # Verify that enough signatures were provided.
@@ -167,7 +167,7 @@ class MultiSigTimelock(sp.Contract):
     # Update key data
     threshold, keyList = sp.match_pair(keyData)
     self.data.threshold  = threshold
-    self.data.operator_public_keys = keyList
+    self.data.signers = keyList
 
   # Cancel a request in the timelock.
   # Param:
@@ -190,11 +190,11 @@ class MultiSigTimelock(sp.Contract):
 
     # Count valid signatures
     validSignaturesCounter = sp.local('valid_signatures_counter', sp.nat(0))
-    sp.for operator_public_key in self.data.operator_public_keys:
+    sp.for signer in self.data.signers:
       # Check if the given public key is in the signatures list.
-      keyHash = sp.hash_key(operator_public_key)
+      keyHash = sp.hash_key(signer)
       sp.if signatures.contains(keyHash):
-        sp.verify(sp.check_signature(operator_public_key, signatures[keyHash], sp.pack(cancellationRequest)), "BAD_SIGNATURE")
+        sp.verify(sp.check_signature(signer, signatures[keyHash], sp.pack(cancellationRequest)), "BAD_SIGNATURE")
         validSignaturesCounter.value += 1
       
     # Verify that enough signatures were provided.
@@ -216,7 +216,7 @@ class MultiSigTimelock(sp.Contract):
       timelockToStart, lambdaToExecute = sp.match_pair(timelockItem)
 
       # Verify time has been exceeded.
-      execution_time = timelockToStart.add_seconds(sp.to_int(self.data.timelock_seconds))
+      execution_time = timelockToStart.add_seconds(sp.to_int(self.data.timelockSeconds))
       sp.verify(execution_time < sp.now, "TOO_EARLY")
 
       # Remove item from timelock.
@@ -277,7 +277,7 @@ def test():
   threshhold = 3
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
   )
   scenario += multiSigContract
 
@@ -343,7 +343,7 @@ def test():
   threshhold = 3
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
   )
   scenario += multiSigContract
 
@@ -405,7 +405,7 @@ def test():
   threshhold = 3
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
   )
   scenario += multiSigContract
 
@@ -463,7 +463,7 @@ def test():
   threshhold = 3
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
   )
   scenario += multiSigContract
 
@@ -521,7 +521,7 @@ def test():
   threshhold = 3
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
   )
   scenario += multiSigContract
 
@@ -577,7 +577,7 @@ def test():
   threshhold = 3
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key]
+    signers = [ alice.public_key, bob.public_key, charlie.public_key]
   )
   scenario += multiSigContract
 
@@ -642,7 +642,7 @@ def test():
   threshhold = 3
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
   )
   scenario += multiSigContract
 
@@ -693,7 +693,7 @@ def test():
 
   # AND the key data has been updated.
   scenario.verify(multiSigContract.data.threshold == newThreshold)
-  scenario.verify_equal(multiSigContract.data.operator_public_keys, newKeyList)
+  scenario.verify_equal(multiSigContract.data.signers, newKeyList)
 
 @sp.add_test(name = "rotateKeys - succeeds with threshold signatures")
 def test():
@@ -710,7 +710,7 @@ def test():
   threshhold = 3
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
   )
   scenario += multiSigContract
 
@@ -757,7 +757,7 @@ def test():
 
   # AND the key data has been updated.
   scenario.verify(multiSigContract.data.threshold == newThreshold)
-  scenario.verify_equal(multiSigContract.data.operator_public_keys, newKeyList)
+  scenario.verify_equal(multiSigContract.data.signers, newKeyList)
 
 @sp.add_test(name = "rotateKeys - fails with bad nonce")
 def test():
@@ -774,7 +774,7 @@ def test():
   threshhold = 3
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
   )
   scenario += multiSigContract
 
@@ -834,7 +834,7 @@ def test():
   threshhold = 3
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
   )
   scenario += multiSigContract
 
@@ -893,7 +893,7 @@ def test():
   threshhold = 3
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ]
   )
   scenario += multiSigContract
 
@@ -951,7 +951,7 @@ def test():
   threshhold = 3
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key]
+    signers = [ alice.public_key, bob.public_key, charlie.public_key]
   )
   scenario += multiSigContract
 
@@ -1019,8 +1019,8 @@ def test():
   timelockSeconds = sp.nat(1)
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
-    timelock_seconds = timelockSeconds
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
+    timelockSeconds = timelockSeconds
   )
   scenario += multiSigContract
 
@@ -1103,8 +1103,8 @@ def test():
   timelockSeconds = sp.nat(1)
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
-    timelock_seconds = timelockSeconds
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
+    timelockSeconds = timelockSeconds
   )
   scenario += multiSigContract
 
@@ -1183,8 +1183,8 @@ def test():
   timelockSeconds = sp.nat(1)
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
-    timelock_seconds = timelockSeconds
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
+    timelockSeconds = timelockSeconds
   )
   scenario += multiSigContract
 
@@ -1259,8 +1259,8 @@ def test():
   timelockSeconds = sp.nat(1)
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
-    timelock_seconds = timelockSeconds
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
+    timelockSeconds = timelockSeconds
   )
   scenario += multiSigContract
 
@@ -1333,8 +1333,8 @@ def test():
   timelockSeconds = sp.nat(1)
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
-    timelock_seconds = timelockSeconds
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
+    timelockSeconds = timelockSeconds
   )
   scenario += multiSigContract
 
@@ -1407,8 +1407,8 @@ def test():
   timelockSeconds = sp.nat(1)
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key],
-    timelock_seconds = timelockSeconds
+    signers = [ alice.public_key, bob.public_key, charlie.public_key],
+    timelockSeconds = timelockSeconds
   )
   scenario += multiSigContract
 
@@ -1487,8 +1487,8 @@ def test():
   timelockSeconds = sp.nat(1)
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
-    timelock_seconds = timelockSeconds
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
+    timelockSeconds = timelockSeconds
   )
   scenario += multiSigContract
 
@@ -1558,8 +1558,8 @@ def test():
   timelockSeconds = sp.nat(1)
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
-    timelock_seconds = timelockSeconds
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
+    timelockSeconds = timelockSeconds
   )
   scenario += multiSigContract
 
@@ -1621,8 +1621,8 @@ def test():
   timelockSeconds = sp.nat(1)
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
-    timelock_seconds = timelockSeconds
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
+    timelockSeconds = timelockSeconds
   )
   scenario += multiSigContract
 
@@ -1693,8 +1693,8 @@ def test():
   timelockSeconds = sp.nat(1)
   multiSigContract = MultiSigTimelock(
     threshold = threshhold,
-    operator_public_keys = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
-    timelock_seconds = timelockSeconds
+    signers = [ alice.public_key, bob.public_key, charlie.public_key, dan.public_key, eve.public_key ],
+    timelockSeconds = timelockSeconds
   )
   scenario += multiSigContract
 
