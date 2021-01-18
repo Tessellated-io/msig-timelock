@@ -1,4 +1,10 @@
-import { ContractOriginationResult, OperationData, chainId, url, address, publicKey } from './types'
+import {
+  ContractOriginationResult,
+  OperationData,
+  chainId,
+  url,
+  address,
+} from './types'
 import { TezosToolkit } from '@taquito/taquito'
 import BigNumber from 'bignumber.js'
 import fs = require('fs')
@@ -12,12 +18,15 @@ import Constants from './constants'
 
 /**
  * Retrieve the nonce for a multisig contract.
- * 
+ *
  * @param multiSigContractAddress The address of the multisig contract.
  * @param nodeUrl The URL of the Tezos node to use.
  * @returns The current nonce
  */
-export const getNonce = async (multiSigContractAddress: address, nodeUrl: url): Promise<number> => {
+export const getNonce = async (
+  multiSigContractAddress: address,
+  nodeUrl: url,
+): Promise<number> => {
   const tezos = new TezosToolkit(nodeUrl)
 
   const multiSigContract = await tezos.contract.at(multiSigContractAddress)
@@ -46,7 +55,7 @@ export const getChainId = async (nodeUrl: url): Promise<chainId> => {
  * @param operation The operation.
  * @returns The compiled michelson.
  */
-export const compileOperation = async (operation: OperationData): Promise<string> => {
+export const compileOperation = (operation: OperationData): string => {
   // A simple program that executes the lambda.
   const program = `
 import smartpy as sp
@@ -67,10 +76,12 @@ def operation(self):
   const dirName = `./.msig-cli-tmp`
   const fileName = `${dirName}/operation.py`
   fs.mkdirSync(dirName)
-  fs.writeFileSync(fileName, program);
+  fs.writeFileSync(fileName, program)
 
   // Compile the operation.
-  childProcess.execSync(`~/smartpy-cli/SmartPy.sh compile-expression "${fileName}" "operation" ${dirName}`)
+  childProcess.execSync(
+    `~/smartpy-cli/SmartPy.sh compile-expression "${fileName}" "operation" ${dirName}`,
+  )
 
   // Read the operation back into memory.
   const outputFile = `${dirName}/operation_michelson.tz`
@@ -84,7 +95,7 @@ def operation(self):
 
 /**
  * Read a smart contract from a file.
- * 
+ *
  * @param filename The file to read.
  * @returns The smart contract source.
  */
@@ -97,7 +108,7 @@ export function loadContract(filename: string): string {
 
 /**
  * Deploy a contract.
- * 
+ *
  * @param nodeUrl The URL of the Tezos node.
  * @param contractSource Source code of the contract.
  * @param storage Initial storage for the contract.
@@ -163,13 +174,6 @@ export async function deployContract(
     Utils.print(e.message)
     await Utils.sleep(30)
 
-    return deployContract(
-      nodeUrl,
-      contractSource,
-      storage,
-      keystore,
-      counter,
-    )
+    return deployContract(nodeUrl, contractSource, storage, keystore, counter)
   }
 }
-
