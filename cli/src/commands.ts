@@ -442,7 +442,7 @@ export const submit = async (
   operation: OperationData,
   addresses: Array<address>,
   signatures: Array<string>,
-  nonce: number,
+  nonce: number | undefined,
   multiSigContractAddress: address,
   nodeUrl: url,
   privateKey: string,
@@ -452,9 +452,12 @@ export const submit = async (
   const signer = await Utils.signerFromKeyStore(keyStore)
 
   Utils.print(`Submitting operation from: ${keyStore.publicKeyHash} `)
-  Utils.print(`Using nonce: ${nonce} `)
 
   await Utils.revealAccountIfNeeded(nodeUrl, keyStore, signer)
+
+  const actualNonce =
+    nonce ? nonce : (await getNonce(multiSigContractAddress, nodeUrl)) + 1
+  Utils.print(`Using nonce: ${actualNonce} `)
 
   const counter = await TezosNodeReader.getCounterForAccount(
     nodeUrl,
@@ -472,7 +475,7 @@ export const submit = async (
     signaturesMap += `Elt "${address}" "${signature}"; `
   }
 
-  const param = `Pair { ${signaturesMap} } (Pair "${chainId}" (Pair ${nonce} ${lambda}))`
+  const param = `Pair { ${signaturesMap} } (Pair "${chainId}" (Pair ${actualNonce} ${lambda}))`
   Utils.print(`Invoking with param: ${param}`)
   Utils.print('')
 
