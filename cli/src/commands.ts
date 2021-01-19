@@ -140,14 +140,14 @@ export const keyRotationbytesToSubmit = async (
 /**
  * Retrieve bytes to sign for a cancel operation.
  *
- * @param operationId The operation id to cancel.
+ * @param operationIdToCancel The operation id to cancel.
  * @param nodeUrl The URL of the tezos node.
  * @param operationId The operation ID to use. If undefined, a operation ID will be fetched from the multisig contract.
  * @param multiSigContractAddress The address of the multisig contract.
  * @param attemptAutomatic Attempt to automatically produce bytes.
  */
 export const cancelbytesToSubmit = async (
-  operationId: number,
+  operationIdToCancel: number,
   nodeUrl: url,
   operationId: number | undefined,
   multiSigContractAddress: address,
@@ -157,7 +157,7 @@ export const cancelbytesToSubmit = async (
   const actualOperationId =
     operationId ? operationId : (await getOperationId(multiSigContractAddress, nodeUrl)) + 1
 
-  const michelson = `Pair "${chainId}" (Pair ${actualOperationId} ${operationId})`
+  const michelson = `Pair "${chainId}" (Pair ${actualOperationId} ${operationIdToCancel})`
 
   Utils.print('Data to encode')
   Utils.print(`${michelson}`)
@@ -443,7 +443,7 @@ export const submit = async (
   operation: OperationData,
   addresses: Array<address>,
   signatures: Array<string>,
-  operatoinId: number | undefined,
+  operationId: number | undefined,
   multiSigContractAddress: address,
   nodeUrl: url,
   privateKey: string,

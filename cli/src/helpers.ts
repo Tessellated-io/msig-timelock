@@ -23,7 +23,7 @@ import Constants from './constants'
  * @param nodeUrl The URL of the Tezos node to use.
  * @returns The current operation ID
  */
-export const getOperationID = async (
+export const getOperationId = async (
   multiSigContractAddress: address,
   nodeUrl: url,
 ): Promise<number> => {
