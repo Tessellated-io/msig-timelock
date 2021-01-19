@@ -452,6 +452,7 @@ export const submit = async (
   const signer = await Utils.signerFromKeyStore(keyStore)
 
   Utils.print(`Submitting operation from: ${keyStore.publicKeyHash} `)
+  Utils.print(`Using nonce: ${nonce} `)
 
   await Utils.revealAccountIfNeeded(nodeUrl, keyStore, signer)
 
