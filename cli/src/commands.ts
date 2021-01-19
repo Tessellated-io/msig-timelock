@@ -255,7 +255,7 @@ export const deployMultisig = async (
  * @param operationId The operation to cancel.
  * @param addresses Parallel sorted arrays of addresses.
  * @param signatures Parrell sorted array of signatures.
- * @param nonce The nonce.
+ * @param nonce The nonce to use. If undefined, a nonce will be fetched from the multisig contract.
  * @param multiSigContractAddress The address of the multisig
  * @param nodeUrl The url of the Tezos node.
  * @param privateKey The private key to sign the transaction with. Only keys starting with edsk are supported.
@@ -265,7 +265,7 @@ export const cancel = async (
   operationId: number,
   addresses: Array<address>,
   signatures: Array<string>,
-  nonce: number,
+  nonce: number | undefined,
   multiSigContractAddress: address,
   nodeUrl: url,
   privateKey: string,
@@ -274,8 +274,11 @@ export const cancel = async (
   const keyStore = await Utils.keyStoreFromPrivateKey(privateKey)
   const signer = await Utils.signerFromKeyStore(keyStore)
 
+  const actualNonce =
+    nonce ? nonce : (await getNonce(multiSigContractAddress, nodeUrl)) + 1
+
   Utils.print(`Submitting cancel operation from: ${keyStore.publicKeyHash} `)
-  Utils.print(`Using nonce: ${nonce} `)
+  Utils.print(`Using nonce: ${actualNonce} `)
 
   await Utils.revealAccountIfNeeded(nodeUrl, keyStore, signer)
 
@@ -294,10 +297,7 @@ export const cancel = async (
     signaturesMap += `Elt "${address}" "${signature}"; `
   }
 
-  const param = `Pair { ${signaturesMap} } (Pair "${chainId}" (Pair ${nonce} ${operationId}))`
-  Utils.print(`Invoking with param: ${param}`)
-  Utils.print('')
-
+  const param = `Pair { ${signaturesMap} } (Pair "${chainId}" (Pair ${actualNonce} ${operationId}))`
   Utils.print(`Use tezos-client to submit the operation manually.`)
   Utils.print(
     `tezos-client -E ${nodeUrl} transfer 0 from ${keyStore.publicKeyHash} to ${multiSigContractAddress} --arg '${param}' --entrypoint 'cancel'`,
@@ -342,7 +342,7 @@ export const cancel = async (
  * @param keyList The new list of keys.
  * @param addresses Parallel sorted arrays of addresses.
  * @param signatures Parrell sorted array of signatures.
- * @param nonce The nonce.
+ * @param nonce The nonce to use. If undefined, a nonce will be fetched from the multisig contract.
  * @param multiSigContractAddress The address of the multisig
  * @param nodeUrl The url of the Tezos node.
  * @param privateKey The private key to sign the transaction with. Only keys starting with edsk are supported.
@@ -353,7 +353,7 @@ export const rotateKey = async (
   keyList: Array<publicKey>,
   addresses: Array<address>,
   signatures: Array<string>,
-  nonce: number,
+  nonce: number | undefined,
   multiSigContractAddress: address,
   nodeUrl: url,
   privateKey: string,
@@ -362,8 +362,12 @@ export const rotateKey = async (
   const keyStore = await Utils.keyStoreFromPrivateKey(privateKey)
   const signer = await Utils.signerFromKeyStore(keyStore)
 
+  const actualNonce =
+    nonce ? nonce : (await getNonce(multiSigContractAddress, nodeUrl)) + 1
+
+
   Utils.print(`Submitting rotate from: ${keyStore.publicKeyHash} `)
-  Utils.print(`Using nonce: ${nonce} `)
+  Utils.print(`Using nonce: ${actualNonce} `)
 
   await Utils.revealAccountIfNeeded(nodeUrl, keyStore, signer)
 
@@ -385,10 +389,7 @@ export const rotateKey = async (
     signaturesMap += `Elt "${address}" "${signature}"; `
   }
 
-  const param = `Pair { ${signaturesMap} } (Pair "${chainId}" (Pair ${nonce} (Pair ${threshold} {${keyListMichelson}})))`
-  Utils.print(`Invoking with param: ${param}`)
-  Utils.print('')
-
+  const param = `Pair { ${signaturesMap} } (Pair "${chainId}" (Pair ${actualNonce} (Pair ${threshold} {${keyListMichelson}})))`
   Utils.print(`Use tezos-client to submit the operation manually.`)
   Utils.print(
     `tezos-client -E ${nodeUrl} transfer 0 from ${keyStore.publicKeyHash} to ${multiSigContractAddress} --arg '${param}' --entrypoint 'rotate'`,
@@ -432,7 +433,7 @@ export const rotateKey = async (
  * @param operation The operation
  * @param addresses Parallel sorted arrays of addresses.
  * @param signatures Parrell sorted array of signatures.
- * @param nonce The nonce.
+ * @param nonce The nonce to use. If undefined, a nonce will be fetched from the multisig contract.
  * @param multiSigContractAddress The address of the multisig
  * @param nodeUrl The url of the Tezos node.
  * @param privateKey The private key to sign the transaction with. Only keys starting with edsk are supported.
@@ -477,9 +478,6 @@ export const submit = async (
   }
 
   const param = `Pair { ${signaturesMap} } (Pair "${chainId}" (Pair ${actualNonce} ${lambda}))`
-  Utils.print(`Invoking with param: ${param}`)
-  Utils.print('')
-
   Utils.print(`Use tezos-client to submit the operation manually.`)
   Utils.print(
     `tezos-client -E ${nodeUrl} transfer 0 from ${keyStore.publicKeyHash} to ${multiSigContractAddress} --arg '${param}' --entrypoint 'submit'`,
